@@ -68,17 +68,17 @@ def decode_psc(
     length: ArrayLike | None = None,
     corner: ArrayLike | None = None,
 ) -> xr.Dataset:
-    da = ds[next(iter(ds))]  # first dataset
-    if da.dims[0] == "dim_0_1":
+    dims = list(ds.dims)
+    if "dim_0_1" in dims:
         # for compatibility, if dimensions weren't saved as attribute in the .bp file,
         # fix them up here
         ds = ds.rename_dims(
             {
-                da.dims[0]: "step",
+                dims[0]: "step",
                 # dims[1] is the "component" dimension, which gets removed later
-                da.dims[2]: "z",
-                da.dims[3]: "y",
-                da.dims[4]: "x",
+                dims[2]: "z",
+                dims[3]: "y",
+                dims[4]: "x",
             }
         )
     ds = ds.squeeze("step")
