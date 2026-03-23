@@ -37,6 +37,7 @@ class RunInfo:
         self.x = self._get_coord(0)
         self.y = self._get_coord(1)
         self.z = self._get_coord(2)
+        self.t = float(ds.attrs["time"])
 
     def _get_coord(self, coord_idx: int) -> NDArray[Any]:
         return np.linspace(
@@ -68,17 +69,17 @@ def decode_psc(
     length: ArrayLike | None = None,
     corner: ArrayLike | None = None,
 ) -> xr.Dataset:
-    da = ds[next(iter(ds))]  # first dataset
-    if da.dims[0] == "dim_0_1":
+    dims = list(ds.dims)
+    if "dim_0_1" in dims:
         # for compatibility, if dimensions weren't saved as attribute in the .bp file,
         # fix them up here
         ds = ds.rename_dims(
             {
-                da.dims[0]: "step",
-                # dims[1] is the "component" dimension, which gets removed later
-                da.dims[2]: "z",
-                da.dims[3]: "y",
-                da.dims[4]: "x",
+                dims[0]: "step",
+                dims[1]: "component",
+                dims[2]: "z",
+                dims[3]: "y",
+                dims[4]: "x",
             }
         )
     ds = ds.squeeze("step")
@@ -86,7 +87,7 @@ def decode_psc(
     for var_name in ds:
         components = list(iter_components(var_name, species_names))
         for component_idx, component in enumerate(components):
-            ds = ds.assign({component: ds[var_name][component_idx, :, :, :]})
+            ds = ds.assign({component: ds[var_name].isel(component=component_idx)})
         if var_name not in components:
             ds = ds.drop_vars([var_name])
 
@@ -95,6 +96,7 @@ def decode_psc(
         "x": ("x", run_info.x),
         "y": ("y", run_info.y),
         "z": ("z", run_info.z),
+        "t": run_info.t,
     }
     ds = ds.assign_coords(coords)
 

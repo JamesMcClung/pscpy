@@ -98,7 +98,7 @@ def ds_pfd_moments_decoded(ds_pfd_moments_raw) -> xr.Dataset:
 
 def test_open_dataset(ds_pfd_decoded):
     assert "jx_ec" in ds_pfd_decoded
-    assert ds_pfd_decoded.coords.keys() == set({"x", "y", "z"})
+    assert ds_pfd_decoded.coords.keys() == set({"x", "y", "z", "t"})
     assert ds_pfd_decoded.jx_ec.sizes == dict(x=1, y=128, z=512)  # noqa: C408
     assert np.allclose(
         ds_pfd_decoded.jx_ec.z.data, np.linspace(-25.6, 25.6, 512, endpoint=False).data
