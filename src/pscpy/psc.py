@@ -37,7 +37,6 @@ class RunInfo:
         self.x = self._get_coord(0)
         self.y = self._get_coord(1)
         self.z = self._get_coord(2)
-        self.t = float(ds.attrs["time"])
 
     def _get_coord(self, coord_idx: int) -> NDArray[Any]:
         return np.linspace(
@@ -96,7 +95,7 @@ def decode_psc(
         "x": ("x", run_info.x),
         "y": ("y", run_info.y),
         "z": ("z", run_info.z),
-        "t": run_info.t,
+        "t": float(ds.attrs["time"]),
     }
     ds = ds.assign_coords(coords)
 
