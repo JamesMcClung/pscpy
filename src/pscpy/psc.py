@@ -62,6 +62,12 @@ def iter_components(field: Hashable, species_names: Iterable[str]) -> Generator[
                 yield f"{moment}_{species_name}"
 
 
+def unwrap_float(arr: np.ndarray) -> float:
+    if arr.ndim == 0:
+        return float(arr)
+    return float(arr[0])
+
+
 def decode_psc(
     ds: xr.Dataset,
     species_names: Iterable[str],
@@ -95,7 +101,7 @@ def decode_psc(
         "x": ("x", run_info.x),
         "y": ("y", run_info.y),
         "z": ("z", run_info.z),
-        "t": float(ds.attrs["time"]),
+        "t": unwrap_float(ds.attrs["time"]),
     }
     ds = ds.assign_coords(coords)
 
