@@ -37,7 +37,6 @@ class RunInfo:
         self.x = self._get_coord(0)
         self.y = self._get_coord(1)
         self.z = self._get_coord(2)
-        self.t = float(ds.attrs["time"])
 
     def _get_coord(self, coord_idx: int) -> NDArray[Any]:
         return np.linspace(
@@ -61,6 +60,12 @@ def iter_components(field: Hashable, species_names: Iterable[str]) -> Generator[
         for species_name in species_names:
             for moment in moments:
                 yield f"{moment}_{species_name}"
+
+
+def unwrap_float(arr: np.ndarray) -> float:
+    if arr.ndim == 0:
+        return float(arr)
+    return float(arr[0])
 
 
 def decode_psc(
@@ -96,7 +101,7 @@ def decode_psc(
         "x": ("x", run_info.x),
         "y": ("y", run_info.y),
         "z": ("z", run_info.z),
-        "t": run_info.t,
+        "t": unwrap_float(ds.attrs["time"]),
     }
     ds = ds.assign_coords(coords)
 

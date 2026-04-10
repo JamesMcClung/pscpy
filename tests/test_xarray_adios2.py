@@ -96,6 +96,13 @@ def ds_pfd_moments_decoded(ds_pfd_moments_raw) -> xr.Dataset:
     return _decode_dataset(ds_pfd_moments_raw)
 
 
+@pytest.fixture
+def ds_with_time_arr():
+    return pscpy.decode_psc(
+        xr.open_dataset(pscpy.sample_dir / "pfd.000000000.bp"), ["e", "i"]
+    )
+
+
 def test_open_dataset(ds_pfd_decoded):
     assert "jx_ec" in ds_pfd_decoded
     assert ds_pfd_decoded.coords.keys() == set({"x", "y", "z", "t"})
@@ -103,6 +110,10 @@ def test_open_dataset(ds_pfd_decoded):
     assert np.allclose(
         ds_pfd_decoded.jx_ec.z.data, np.linspace(-25.6, 25.6, 512, endpoint=False).data
     )
+
+
+def test_time_arr(ds_with_time_arr):
+    assert np.isclose(ds_with_time_arr.time[0], 0.0)
 
 
 def test_component(ds_pfd_raw, ds_pfd_decoded):
